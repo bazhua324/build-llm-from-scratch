@@ -1,3 +1,5 @@
+# Tests the DummyGPTModel by tokenizing two sample sentences, running them through
+# the model, and printing the output logits shape to verify the forward pass.
 import tiktoken
 import torch
 from ch04.GPT_CONFIG_124M import GPT_CONFIG_124M

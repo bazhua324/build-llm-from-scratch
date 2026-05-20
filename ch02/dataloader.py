@@ -1,3 +1,6 @@
+# Implements a sliding-window text dataset and DataLoader for GPT pre-training.
+# Tokenizes raw text, chunks it into overlapping input/target sequences, and
+# combines token and positional embeddings into input embeddings.
 import tiktoken
 import torch
 from torch.utils.data import Dataset, DataLoader

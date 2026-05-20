@@ -1,3 +1,6 @@
+# Implements an efficient multi-head causal attention module that processes all
+# heads in parallel via tensor reshaping and transposition, avoiding the overhead
+# of stacking separate attention modules.
 import torch
 from torch import nn
 

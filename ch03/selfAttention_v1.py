@@ -1,3 +1,6 @@
+# Implements a basic self-attention mechanism (v1) using raw nn.Parameter weights
+# for query, key, and value projections. Computes scaled dot-product attention
+# over a sequence of token embeddings.
 import torch
 import torch.nn as nn
 

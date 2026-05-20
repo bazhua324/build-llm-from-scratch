@@ -1,3 +1,5 @@
+# Improved self-attention (v2) that replaces raw nn.Parameter weights with
+# nn.Linear layers for better weight initialization and training stability.
 import torch
 from torch import nn
 

@@ -1,3 +1,5 @@
+# Implements multi-head attention by stacking multiple independent CausalAttention
+# heads and concatenating their outputs along the last dimension.
 import torch
 from torch import nn
 

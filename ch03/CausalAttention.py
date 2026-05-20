@@ -1,3 +1,6 @@
+# Implements causal (masked) self-attention, extending SelfAttention_v2 with an
+# upper-triangular mask to prevent tokens from attending to future positions,
+# plus dropout regularization and batch support.
 import torch
 from torch import nn
 

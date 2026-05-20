@@ -1,3 +1,6 @@
+# A skeleton GPT model used to verify the overall architecture and tensor shapes
+# before implementing real transformer blocks and layer normalization. Transformer
+# blocks and LayerNorm are replaced with pass-through placeholders.
 import torch
 import torch.nn as nn
 
