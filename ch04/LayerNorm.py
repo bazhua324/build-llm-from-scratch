@@ -3,7 +3,10 @@ from torch import nn
 
 class LayerNorm(nn.Module):
     """
-    Layer Normalization
+    Layer Normalization for stable training in deep networks.
+    Normalizes each sample to have mean 0 and std 1, then applies learnable
+    scale and shift so the model can recover the optimal distribution.
+    Without this, values across layers can explode or vanish, breaking training.
     """
     def __init__(self, emb_dim):
         super().__init__()
