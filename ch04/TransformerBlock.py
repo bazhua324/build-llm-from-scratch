@@ -1,3 +1,6 @@
+"""
+Implements the TransformerBlock, the core repeating unit of a GPT-style language model.
+"""
 from torch import nn
 from torch.nn.functional import dropout
 
