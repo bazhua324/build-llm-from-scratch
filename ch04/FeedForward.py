@@ -5,6 +5,12 @@ from GELU import GELU
 
 
 class FeedForward(nn.Module):
+    """
+    Position-wise feed-forward network used inside each transformer block.
+
+    Expands the embedding dimension by a factor of 4 via a linear layer, applies GELU
+    activation, then projects back down to the original embedding dimension.
+    """
     def __init__(self, cfg):
         super().__init__()
         self.layers = nn.Sequential(

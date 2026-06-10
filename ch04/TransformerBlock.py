@@ -14,13 +14,13 @@ class TransformerBlock(nn.Module):
     pre-layer normalization again followed by a feed-forward network with another residual
     shortcut. Dropout is applied after each sub-layer before the residual addition.
     """
-    def __init(self, cfg):
+    def __init__(self, cfg):
         super().__init__()
         self.att = MultiHeadAttention(
             d_in=cfg["emb_dim"],
             d_out=cfg["emb_dim"],
             context_length=cfg["context_length"],
-            num_heads=cfg["num_heads"],
+            num_heads=cfg["n_heads"],
             qkv_bias=cfg["qkv_bias"],
             dropout=cfg["drop_rate"]
         )
