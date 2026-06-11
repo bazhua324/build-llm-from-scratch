@@ -2,7 +2,6 @@
 Implements the TransformerBlock, the core repeating unit of a GPT-style language model.
 """
 from torch import nn
-from torch.nn.functional import dropout
 
 from ch03.MultiHeadAttention import MultiHeadAttention
 from ch04.FeedForward import FeedForward
@@ -38,9 +37,11 @@ class TransformerBlock(nn.Module):
 
         x = self.norm1(x)
         x = self.att(x)
-        x = self.dropout(x)
+        x = self.dropout_shortcut(x)
 
-        x = shortcut + x
+        x = x + shortcut
+
+        shortcut = x
 
         x = self.norm2(x)
         x = self.ff(x) # Liner layer -> GELU activation -> linear layer
