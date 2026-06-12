@@ -1,6 +1,3 @@
-# Implements an efficient multi-head causal attention module that processes all
-# heads in parallel via tensor reshaping and transposition, avoiding the overhead
-# of stacking separate attention modules.
 import torch
 from torch import nn
 
@@ -16,6 +13,8 @@ class MultiHeadAttention(nn.Module):
         self.W_query = nn.Linear(d_in, d_out, qkv_bias)
         self.W_key = nn.Linear(d_in, d_out, qkv_bias)
         self.W_value = nn.Linear(d_in, d_out, qkv_bias)
+
+        # self.out_proj = nn.Linear(d_out, d_out)
 
         self.dropout = nn.Dropout(dropout)
         self.register_buffer('mask', torch.triu(torch.ones(context_length, context_length), diagonal = 1))
@@ -47,30 +46,32 @@ class MultiHeadAttention(nn.Module):
         context_vec = (attn_weights @ values).transpose(1, 2) # (2, 2, 6, 1) -> (2, 6, 2, 1)
 
         # Combine
-        context_vec = context_vec.contiguous().view(b, num_tokens, d_out)
+        context_vec = context_vec.contiguous().view(b, num_tokens, self.d_out)
+        # context_vec = self.out_proj(context_vec)
 
         return context_vec
 
-torch.manual_seed(123)
+if __name__ == '__main__':
+    torch.manual_seed(123)
 
-inputs = torch.tensor(
-    [[0.43, 0.15, 0.89], # Your     (x^1)
-     [0.55, 0.87, 0.66], # journey  (x^2)
-     [0.57, 0.85, 0.64], # starts   (x^3)
-     [0.22, 0.58, 0.33], # with     (x^4)
-     [0.77, 0.25, 0.10], # one      (x^5)
-     [0.05, 0.80, 0.55]] # step     (x^6)
-)
+    inputs = torch.tensor(
+        [[0.43, 0.15, 0.89], # Your     (x^1)
+         [0.55, 0.87, 0.66], # journey  (x^2)
+         [0.57, 0.85, 0.64], # starts   (x^3)
+         [0.22, 0.58, 0.33], # with     (x^4)
+         [0.77, 0.25, 0.10], # one      (x^5)
+         [0.05, 0.80, 0.55]] # step     (x^6)
+    )
 
-batch = torch.stack([inputs, inputs])
-print(batch.shape)
-# torch.Size([2, 6, 3])
+    batch = torch.stack([inputs, inputs])
+    print(batch.shape)
+    # torch.Size([2, 6, 3])
 
-d_in, d_out = 3, 2
-num_heads = 2
-context_length = batch.shape[1] # 2
+    d_in, d_out = 3, 2
+    num_heads = 2
+    context_length = batch.shape[1] # 2
 
-mha = MultiHeadAttention(d_in, d_out, context_length, num_heads, 0.0)
-context_vecs = mha(batch)
-print(context_vecs)
-print("context_vecs.shape:", context_vecs.shape)
+    mha = MultiHeadAttention(d_in, d_out, context_length, num_heads, 0.0)
+    context_vecs = mha(batch)
+    print(context_vecs)
+    print("context_vecs.shape:", context_vecs.shape)

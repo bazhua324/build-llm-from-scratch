@@ -22,8 +22,10 @@ class FeedForward(nn.Module):
     def forward(self, x):
         return self.layers(x) # self.layers is an instance of nn.Sequential
 
-print(GPT_CONFIG_124M["emb_dim"])
-ffn = FeedForward(GPT_CONFIG_124M)
-x = torch.rand(2, 3, 768)
-out = ffn(x)
-print(out.shape)
+if __name__ == "__main__":
+    cfg = GPT_CONFIG_124M()
+    print(GPT_CONFIG_124M["emb_dim"])
+    ffn = FeedForward(GPT_CONFIG_124M)
+    x = torch.rand(2, 3, 768)
+    out = ffn(x)
+    print(out.shape)
