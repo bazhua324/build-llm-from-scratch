@@ -9,9 +9,9 @@ from ch05.GPT_CONFIG_124M import GPT_CONFIG_124M
 
 torch.manual_seed(123)
 model = GPTModel(GPT_CONFIG_124M)
-model.eval() # Disable dropout during inference
-
 tokenizer = tiktoken.get_encoding("gpt2")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
 
 def text_to_token_ids(text, tokenizer):
     encoded = tokenizer.encode(text)
@@ -162,10 +162,12 @@ def calculate_the_training_and_validation_set_loss():
 
     def calc_loss_loader(data_loader, model, device, num_batches=None):
         total_loss = 0
-
-        if num_batches is None:
+        if len(data_loader) == 0:
+            return float("nan")
+        elif num_batches is None:
             num_batches = len(data_loader)
-
+        else:
+            num_batches = min(num_batches, len(data_loader))
         for i, (input_batch, output_batch) in enumerate(data_loader):
             if i < num_batches:
                 loss = calc_loss_batch(input_batch, output_batch, model, device)
@@ -175,25 +177,65 @@ def calculate_the_training_and_validation_set_loss():
 
         return total_loss / num_batches
 
-    with torch.no_grad():
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model.to(device)
-        train_loss = calc_loss_loader(train_loader, model, device)
-        val_loss = calc_loss_loader(val_loader, model, device)
+    # with torch.no_grad():
+    #     train_loss = calc_loss_loader(train_loader, model, device)
+    #     val_loss = calc_loss_loader(val_loader, model, device)
+    #
+    #     print(f"Train loss: {train_loss}")
+    #     print(f"Val loss: {val_loss}")
 
-        print(f"Train loss: {train_loss}")
-        print(f"Val loss: {val_loss}")
+    def train_model_simple(num_epochs, train_loader, model, device, optimizer, start_text, tokenizer, eval_iter, eval_freq):
+        train_losses, val_losses, track_tokens_seen = [], [], []
+        tokens_seen = 0
+        global_steps = -1
+        for epoch in range(num_epochs):
+            model.train() # Set model to training mode
 
+            for input_batch, target_batch in train_loader:
+                optimizer.zero_grad() # Reset loss gradients for each epoch
+                loss = calc_loss_batch(input_batch, target_batch, model, device)
+                loss.backward() # Calculate loss gradients
+                optimizer.step() # Update model weights using loss gradients
+                tokens_seen += input_batch.numel()
+                global_steps += 1
 
+                if global_steps % eval_freq == 0:
+                    train_loss, val_loss = evaluate_model(train_loader, val_loader, model, device, eval_iter)
+                    train_losses.append(train_loss)
+                    val_losses.append(val_loss)
+                    
+                    track_tokens_seen.append(tokens_seen)
+                    print(f"Epoch {epoch + 1}, Step {global_steps}, Train loss: {train_loss}, Val loss: {val_loss}")
+                    generate_and_print_sample(start_text, tokenizer, model, device)
 
+    def evaluate_model(train_loader, val_loader, model, device, eval_iter):
+        model.eval()
+        with torch.no_grad():
+            train_loss = calc_loss_loader(train_loader, model, device, eval_iter)
+            val_loss = calc_loss_loader(val_loader, model, device, eval_iter)
+        model.train()
+        return train_loss, val_loss
 
+    def generate_and_print_sample(start_text, tokenizer, model, device):
+        model.eval()
+        context_size = model.pos_emb.weight.shape[0]
+        encoded = text_to_token_ids(start_text, tokenizer).to(device)
+        with torch.no_grad():
+            token_ids = generate_text_simple(
+                model,
+                encoded,
+                50,
+                context_size)
+        decoded = token_ids_to_text(token_ids, tokenizer)
+        print(decoded.replace("\n", "  "))
+        model.train()
 
+    # Train the LLM
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.0004, weight_decay=0.01)
 
-
-
-
-
-
+    num_epochs = 15
+    start_text = "Every effort moves you"
+    train_model_simple(num_epochs, train_loader, model, device, optimizer, start_text, tokenizer, eval_iter=5, eval_freq=5)
 
 if __name__ == "__main__":
     # use_gpt_to_generate_text()
