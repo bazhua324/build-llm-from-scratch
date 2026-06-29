@@ -43,6 +43,7 @@ def calculating_the_text_generation_loss():
     targets = torch.tensor([[3626, 6100, 345  ],  # [" effort moves you",
                             [1107,  588, 11311]]) #  " really like chocolate"]
 
+    inputs, targets = inputs.to(device), targets.to(device)
     with torch.no_grad():
         logits = model(inputs) # Raw scores for each vocabulary token at every position
 
@@ -135,7 +136,7 @@ def calculate_the_training_and_validation_set_loss():
         max_length=GPT_CONFIG_124M["context_length"],
         stride=GPT_CONFIG_124M["context_length"],
         drop_last=True,
-        shuffle=True,
+        shuffle=False,
         num_workers=0,
     )
 
@@ -177,6 +178,22 @@ def calculate_the_training_and_validation_set_loss():
 
         return total_loss / num_batches
 
+    import matplotlib.pyplot as plt
+    def plot_losses(epochs_seen, tokens_seen, train_losses, val_losses, ):
+        fig, ax1 = plt.subplots(figsize=(5, 3))
+
+        ax1.plot(epochs_seen, train_losses, label="Training loss")
+        ax1.plot(epochs_seen, val_losses, linestyle = "-.", label="Validation loss")
+        ax1.set_xlabel("Epochs")
+        ax1.set_ylabel("Loss")
+        ax1.legend(loc="upper right")
+
+        ax2 = ax1.twiny()
+        ax2.plot(tokens_seen, train_losses, alpha=0)
+        ax2.set_xlabel("Tokens seen")
+
+        plt.show()
+
     # with torch.no_grad():
     #     train_loss = calc_loss_loader(train_loader, model, device)
     #     val_loss = calc_loss_loader(val_loader, model, device)
@@ -188,6 +205,7 @@ def calculate_the_training_and_validation_set_loss():
         train_losses, val_losses, track_tokens_seen = [], [], []
         tokens_seen = 0
         global_steps = -1
+
         for epoch in range(num_epochs):
             model.train() # Set model to training mode
 
@@ -207,6 +225,21 @@ def calculate_the_training_and_validation_set_loss():
                     track_tokens_seen.append(tokens_seen)
                     print(f"Epoch {epoch + 1}, Step {global_steps}, Train loss: {train_loss}, Val loss: {val_loss}")
                     generate_and_print_sample(start_text, tokenizer, model, device)
+
+        epochs_tensor = torch.linspace(0, num_epochs, len(train_losses))
+        plot_losses(epochs_tensor, track_tokens_seen, train_losses, val_losses)
+
+        # Generate texts using the trained model
+        model.eval()
+
+        token_ids = generate_text_simple(
+            model,
+            idx = text_to_token_ids("Every effort moves you", tokenizer),
+            max_new_tokens=25,
+            context_size=GPT_CONFIG_124M["context_length"],
+        )
+
+        print("Output text:\n", token_ids_to_text(token_ids, tokenizer))
 
     def evaluate_model(train_loader, val_loader, model, device, eval_iter):
         model.eval()
@@ -233,7 +266,7 @@ def calculate_the_training_and_validation_set_loss():
     # Train the LLM
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.0004, weight_decay=0.01)
 
-    num_epochs = 15
+    num_epochs = 3
     start_text = "Every effort moves you"
     train_model_simple(num_epochs, train_loader, model, device, optimizer, start_text, tokenizer, eval_iter=5, eval_freq=5)
 
