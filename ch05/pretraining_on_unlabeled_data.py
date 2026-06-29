@@ -29,7 +29,7 @@ def use_gpt_to_generate_text():
 
     token_ids = generate_text_simple(
         model=model,
-        idx=text_to_token_ids(text=start_context, tokenizer=tokenizer),
+        idx=text_to_token_ids(text=start_context, tokenizer=tokenizer).to(device),
         max_new_tokens=10,
         context_size=GPT_CONFIG_124M["context_length"],
     )
@@ -234,7 +234,7 @@ def calculate_the_training_and_validation_set_loss():
 
         token_ids = generate_text_simple(
             model,
-            idx = text_to_token_ids("Every effort moves you", tokenizer),
+            idx=text_to_token_ids("Every effort moves you", tokenizer).to(device),
             max_new_tokens=25,
             context_size=GPT_CONFIG_124M["context_length"],
         )
