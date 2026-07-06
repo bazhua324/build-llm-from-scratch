@@ -2,3 +2,18 @@
 *_test*
 __pycache__/
 *.pyc
+
+# IDE
+.idea/
+
+# Model weights and downloaded assets
+*.pth
+ch05/gpt2/
+
+# Generated files
+*.pdf
+
+# Datasets
+**/*.csv
+**/*.tsv
+**/*.zip
