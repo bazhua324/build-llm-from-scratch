@@ -2,6 +2,7 @@ import torch
 
 import matplotlib.pyplot as plt
 
+
 def print_sample_tokens(probas):
     torch.manual_seed(123)
     next_token_id = torch.multinomial(probas, num_samples=1).item()
@@ -15,8 +16,6 @@ def print_sample_tokens(probas):
 
     for i, freq in enumerate(sample_ids):
         print(inverse_vocab[i], freq)
-
-
 
 def softmax_with_temperature(logits, temperature):
     scaled_logits = logits / temperature
@@ -70,3 +69,18 @@ plt.show()
 print_sample_tokens(scaled_probas[0])
 print_sample_tokens(scaled_probas[1])
 print_sample_tokens(scaled_probas[2])
+
+# Top K sampling
+top_k = 3
+top_logits, top_pos = torch.topk(next_token_logits, k=top_k)
+print("Top logits:", top_logits)
+print("Top positions:", top_pos)
+
+new_logits = torch.where(
+    condition=next_token_logits < top_logits[-1],
+    input = torch.tensor(float("-inf")),
+    other=next_token_logits
+)
+print("New logits:", new_logits)
+topk_probas = torch.softmax(new_logits, dim=0)
+print(topk_probas)

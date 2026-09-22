@@ -4,7 +4,7 @@ context length, embedding dimensions, number of attention heads, transformer lay
 dropout rate, and whether to use bias in QKV projections.
 """
 GPT_CONFIG_124M = {
-    "vocab_size": 50527,
+    "vocab_size": 50257,
     "context_length": 1024,
     "emb_dim": 768,
     "n_heads": 12,
