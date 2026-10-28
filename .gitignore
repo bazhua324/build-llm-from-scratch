@@ -14,6 +14,7 @@ __pycache__/
 *.pth
 ch05/gpt2/
 ch06/gpt2/
+ch07/gpt2/
 
 # Generated files
 *.pdf
