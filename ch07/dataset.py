@@ -1,5 +1,18 @@
 import torch
+from torch.utils.data import Dataset
+from ch07.data_prep import format_input
 
+
+class InstructionDataset(Dataset):
+    def __init__(self, data, tokenizer):
+        self.data = data
+        self.encoded_texts = [tokenizer.encode(format_input(entry)) for entry in data]
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        return self.encoded_texts[idx]
 
 def custom_collate_fn(batch,
                       pad_token_id=50256,
