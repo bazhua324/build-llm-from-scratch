@@ -42,6 +42,9 @@ def format_input(entry):
 
     return instruction_text + input_text
 
+def format_full(entry):
+    return format_input(entry) + f"\n\n### Response:\n{entry['output']}"
+
 if __name__ == "__main__":
     data = download_and_load_file()
 

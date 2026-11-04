@@ -1,12 +1,12 @@
 import torch
 from torch.utils.data import Dataset
-from ch07.data_prep import format_input
+from ch07.data_prep import format_input, format_full
 
 
 class InstructionDataset(Dataset):
     def __init__(self, data, tokenizer):
         self.data = data
-        self.encoded_texts = [tokenizer.encode(format_input(entry)) for entry in data]
+        self.encoded_texts = [tokenizer.encode(format_full(entry)) for entry in data]
 
     def __len__(self):
         return len(self.data)
