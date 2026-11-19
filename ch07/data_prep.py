@@ -27,8 +27,8 @@ def split_data(data, train_frac=0.85, test_ratio=0.1):
     test_end = train_end + int(len(data) * test_ratio)
 
     train_data = data[:train_end]
-    val_data = data[train_end:test_end]
-    test_data = data[test_end:]
+    test_data = data[train_end:test_end]
+    val_data = data[test_end:]
     return train_data, val_data, test_data
 
 def format_input(entry):
