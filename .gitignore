@@ -18,6 +18,9 @@ ch07/gpt2/
 
 # Generated files
 *.pdf
+*.png
+ch07/data/
+ch07/outputs/
 
 # Datasets
 **/*.csv
